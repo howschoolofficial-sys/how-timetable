@@ -114,7 +114,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
     // ======= CONFIGURE THESE THREE LINES ONLY =======
     // 1) Publish your Teachers sheet to the web (as CSV) and paste the link here:
     const TEACHERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXWngRATXVPQSoNgPYtz6VhUlLbiH60zEpS4ctpgVyDU0BF_CR2nYi7bIO-82SBPwyaMU1JvssQ3-X/pub?gid=0&single=true&output=csv";
@@ -196,7 +196,11 @@
     function updatePreview(type, name) {
       const map = state.byType[type];
       const rec = map[name];
-      if (!rec || !rec.ImageURL) {
+      
+      // Get the image URL using different possible column names
+      const imageURL = rec.ImageURL || rec["Image URL"] || rec["Image Url"] || "";
+      
+      if (!rec || !imageURL) {
         $img.removeAttribute('src');
         $empty.style.display = 'grid';
         $open.style.pointerEvents = 'none';
@@ -204,13 +208,15 @@
         setStatus('No image found');
         return;
       }
-      $img.src = rec.ImageURL;
+      
+      $img.src = imageURL;
       $empty.style.display = 'none';
-      $open.href = rec.ImageURL;
+      $open.href = imageURL;
       $open.style.pointerEvents = 'auto';
       $open.style.opacity = 1;
       setStatus(`${type === 'teacher' ? 'Teacher' : 'Class'}: ${name}`);
       state.active = { type, name };
+      
       // Deep link: update URL ?teacher= or ?class=
       const params = new URLSearchParams(location.search);
       params.delete('teacher'); params.delete('class');
@@ -275,7 +281,8 @@
     });
 
     init();
-  </script>
+</script>
 </body>
 </html>
+
 
