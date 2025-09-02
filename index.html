@@ -1,288 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>House of Wisdom | Timetables</title>
+  <meta charset="UTF-8">
+  <title>Teacher & Class Timetable Viewer</title>
   <style>
-    :root {
-      --bg: #0f172a;        /* slate-900 */
-      --panel: #111827;     /* gray-900 */
-      --muted: #94a3b8;     /* slate-400 */
-      --text: #e5e7eb;      /* gray-200 */
-      --accent: #38bdf8;    /* sky-400 */
-      --accent-2: #22d3ee;  /* cyan-400 */
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 20% 0%, rgba(56, 189, 248, .08), transparent 40%),
-                  radial-gradient(1200px 800px at 80% 0%, rgba(34, 211, 238, .06), transparent 40%), var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: grid; place-items: start center;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      text-align: center;
+      padding: 50px;
     }
-    .container { width: min(1100px, 92vw); margin: 32px 0 64px; }
-    header { display:flex; align-items:center; gap:16px; margin-bottom: 18px; }
-    header img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-    h1 { font-size: clamp(20px, 3.6vw, 34px); margin: 0; letter-spacing: .2px; }
-    .sub { color: var(--muted); margin-top: 4px; font-size: 14px; }
-
-    .panel { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-             border: 1px solid rgba(148, 163, 184, .18); border-radius: 18px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
-
-    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    @media (min-width: 880px) { .grid { grid-template-columns: 400px 1fr; } }
-
-    label { display:block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    select, input[type="text"] {
+    h1 {
+      color: #444;
+    }
+    .selector {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    select, button {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px; border: 1px solid rgba(148, 163, 184, .25);
-      background: #0b1220; color: var(--text);
-      outline: none; box-shadow: inset 0 2px 0 rgba(255,255,255,.02);
-      font-size: 15px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
     }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .thumb-wrap { position: relative; background: #0b1220; border: 1px dashed rgba(148,163,184,.35); border-radius: 16px; overflow: hidden; display:grid; place-items:center; min-height: 420px; }
-    .thumb-wrap img { max-width: 100%; height: auto; display: block; }
-    .thumb-empty { color: var(--muted); font-size: 14px; padding: 24px; text-align: center; }
-
-    .actions { display:flex; gap:10px; flex-wrap: wrap; margin-top: 12px; }
-    .btn { appearance: none; border: none; border-radius: 12px; padding: 10px 14px; background: #111827; color: var(--text); cursor: pointer; font-weight: 600; }
-    .btn:hover { filter: brightness(1.1); }
-    .btn-accent { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #0b1220; }
-
-    .footer { margin-top: 18px; color: var(--muted); font-size: 12px; }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .pill { display:inline-block; padding: 6px 10px; border-radius: 999px; border:1px solid rgba(148,163,184,.25); color: var(--muted); font-size: 12px; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .note {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <!-- Optional: Replace with your school logo URL below -->
-      <img id="logo" alt="HoW" src="" onerror="this.style.display='none'"/>
-      <div>
-        <h1>House of Wisdom — Timetable Portal</h1>
-        <div class="sub">Select a teacher or class to view the official timetable. Powered by Google Sheets.</div>
-      </div>
-    </header>
-
-    <div class="panel grid">
-      <section>
-        <div class="row">
-          <div>
-            <label for="teacherSearch">Search Teacher</label>
-            <input type="text" id="teacherSearch" placeholder="Type to filter…" />
-          </div>
-          <div>
-            <label for="teacherSelect">Teacher</label>
-            <select id="teacherSelect"><option value="">— Select a teacher —</option></select>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:12px">
-          <div>
-            <label for="classSearch">Search Class</label>
-            <input type="text" id="classSearch" placeholder="Type to filter…" />
-          </div>
-          <div>
-            <label for="classSelect">Class</label>
-            <select id="classSelect"><option value="">— Select a class —</option></select>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn" id="clearSelection">Clear selection</button>
-          <a class="btn btn-accent" id="openFull" href="#" target="_blank" rel="noopener">Open full size</a>
-          <span class="pill" id="status">Loading data…</span>
-        </div>
-      </section>
-
-      <section>
-        <div class="thumb-wrap">
-          <img id="preview" alt="Timetable preview will appear here" />
-          <div class="thumb-empty" id="emptyState">Pick a teacher or class to view its timetable.</div>
-        </div>
-        <div class="footer">
-          Tip: Update the Google Sheet and the page refresh will show the latest timetables. No need to edit code once configured.
-        </div>
-      </section>
-    </div>
+  <h1>Teacher & Class Timetable Viewer</h1>
+  
+  <div class="selector">
+    <label for="teacherSelect">Select Teacher:</label>
+    <select id="teacherSelect">
+      <option value="">-- Select a Teacher --</option>
+    </select>
   </div>
 
- <script>
-    // ======= CONFIGURE THESE THREE LINES ONLY =======
-    // 1) Publish your Teachers sheet to the web (as CSV) and paste the link here:
-    const TEACHERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXWngRATXVPQSoNgPYtz6VhUlLbiH60zEpS4ctpgVyDU0BF_CR2nYi7bIO-82SBPwyaMU1JvssQ3-X/pub?gid=0&single=true&output=csv";
-    // 2) Publish your Classes sheet to the web (as CSV) and paste the link here:
-    const CLASSES_CSV_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXWngRATXVPQSoNgPYtz6VhUlLbiH60zEpS4ctpgVyDU0BF_CR2nYi7bIO-82SBPwyaMU1JvssQ3-X/pub?gid=1328650280&single=true&output=csv";
-    // 3) (Optional) Add a logo image URL:
-    const LOGO_URL = ""; // e.g., "https://drive.google.com/uc?export=view&id=FILE_ID"
-    // ================================================
+  <div class="selector">
+    <label for="classSelect">Select Class:</label>
+    <select id="classSelect">
+      <option value="">-- Select a Class --</option>
+    </select>
+  </div>
 
-    // Expected CSV headers (row 1): Name, ImageURL
-    // You can add extra columns; they will be ignored.
+  <button id="previewBtn">Preview Timetable</button>
 
-    const state = { teacherRows: [], classRows: [], byType: { teacher: {}, class: {} }, active: null };
-    const $teacher = document.getElementById('teacherSelect');
-    const $class   = document.getElementById('classSelect');
-    const $tSearch = document.getElementById('teacherSearch');
-    const $cSearch = document.getElementById('classSearch');
-    const $img     = document.getElementById('preview');
-    const $empty   = document.getElementById('emptyState');
-    const $open    = document.getElementById('openFull');
-    const $status  = document.getElementById('status');
-    const $logo    = document.getElementById('logo');
+  <p class="note">Click Preview to open the timetable image in a new tab.</p>
 
-    if (LOGO_URL) $logo.src = LOGO_URL;
+  <script>
+    // <-- Update these with your actual published CSV links -->
+    const teachersCSV = "PASTE_TEACHERS_CSV_LINK_HERE";
+    const classesCSV = "PASTE_CLASSES_CSV_LINK_HERE";
 
-    // Lightweight RFC-4180 CSV parser (handles quoted commas & newlines)
-    function parseCSV(text) {
-      const rows = []; let row = []; let cur = '';
-      let i = 0; const N = text.length; let inQuotes = false;
-      while (i < N) {
-        const ch = text[i];
-        if (inQuotes) {
-          if (ch === '"') {
-            if (text[i+1] === '"') { cur += '"'; i++; }
-            else { inQuotes = false; }
-          } else { cur += ch; }
-        } else {
-          if (ch === '"') inQuotes = true;
-          else if (ch === ',') { row.push(cur); cur = ''; }
-          else if (ch === '\n' || ch === '\r') {
-            // finish row on \n or \r, but skip double newlines
-            if (cur !== '' || row.length > 0) { row.push(cur); rows.push(row); row = []; cur = ''; }
-          } else { cur += ch; }
-        }
-        i++;
-      }
-      if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
-      return rows;
-    }
-
-    function toObjects(rows) {
-      if (!rows.length) return [];
-      const headers = rows[0].map(h => String(h).trim());
-      return rows.slice(1).filter(r => r.some(x => String(x).trim() !== '')).map(r => {
-        const obj = {}; headers.forEach((h, idx) => obj[h] = (r[idx] ?? '').trim());
+    // Utility: fetch CSV and convert to array of objects
+    async function fetchCSV(url) {
+      const res = await fetch(url);
+      const text = await res.text();
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      const headers = rows.shift().map(h => h.trim());
+      return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
         return obj;
       });
     }
 
-    async function fetchCSV(url) {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Failed to load: ' + url);
-      const text = await res.text();
-      return toObjects(parseCSV(text));
-    }
-
-    function fillSelect($sel, rows) {
-      // Clear existing options except first placeholder
-      $sel.length = 1;
-      const names = rows.map(r => r.Name).filter(Boolean).sort((a,b) => a.localeCompare(b));
-      for (const name of names) {
-        const opt = document.createElement('option');
-        opt.value = name; opt.textContent = name; $sel.appendChild(opt);
-      }
-    }
-
-    function setStatus(msg) { $status.textContent = msg; }
-
-    function updatePreview(type, name) {
-      const map = state.byType[type];
-      const rec = map[name];
-      
-      // Get the image URL using different possible column names
-      const imageURL = rec.ImageURL || rec["Image URL"] || rec["Image Url"] || "";
-      
-      if (!rec || !imageURL) {
-        $img.removeAttribute('src');
-        $empty.style.display = 'grid';
-        $open.style.pointerEvents = 'none';
-        $open.style.opacity = .6;
-        setStatus('No image found');
-        return;
-      }
-      
-      $img.src = imageURL;
-      $empty.style.display = 'none';
-      $open.href = imageURL;
-      $open.style.pointerEvents = 'auto';
-      $open.style.opacity = 1;
-      setStatus(`${type === 'teacher' ? 'Teacher' : 'Class'}: ${name}`);
-      state.active = { type, name };
-      
-      // Deep link: update URL ?teacher= or ?class=
-      const params = new URLSearchParams(location.search);
-      params.delete('teacher'); params.delete('class');
-      params.set(type, name);
-      history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
-    }
-
-    function filterOptions($sel, query) {
-      query = query.trim().toLowerCase();
-      for (const opt of $sel.options) {
-        if (!opt.value) continue; // placeholder
-        opt.hidden = query && !opt.textContent.toLowerCase().includes(query);
-      }
-    }
-
-    function indexByName(rows) {
-      const map = {}; for (const r of rows) { if (r.Name) map[r.Name] = r; }
-      return map;
-    }
+    let teachers = [];
+    let classes = [];
 
     async function init() {
       try {
-        const [tRows, cRows] = await Promise.all([
-          TEACHERS_CSV_URL ? fetchCSV(TEACHERS_CSV_URL) : Promise.resolve([]),
-          CLASSES_CSV_URL ? fetchCSV(CLASSES_CSV_URL) : Promise.resolve([])
-        ]);
-        state.teacherRows = tRows; state.classRows = cRows;
-        state.byType.teacher = indexByName(tRows);
-        state.byType.class = indexByName(cRows);
-        fillSelect($teacher, tRows);
-        fillSelect($class, cRows);
-        setStatus('Ready');
+        teachers = await fetchCSV(teachersCSV);
+        classes = await fetchCSV(classesCSV);
 
-        // Preselect via URL params ?teacher=Name or ?class=Name
-        const p = new URLSearchParams(location.search);
-        if (p.get('teacher') && state.byType.teacher[p.get('teacher')]) {
-          $teacher.value = p.get('teacher'); updatePreview('teacher', $teacher.value);
-        } else if (p.get('class') && state.byType.class[p.get('class')]) {
-          $class.value = p.get('class'); updatePreview('class', $class.value);
-        }
+        const teacherSelect = document.getElementById("teacherSelect");
+        const classSelect = document.getElementById("classSelect");
+
+        teachers.forEach(t => {
+          const opt = document.createElement("option");
+          opt.value = t.ImageURL || t["Image URL"] || "";
+          opt.textContent = t.Name || "Unnamed Teacher";
+          teacherSelect.appendChild(opt);
+        });
+
+        classes.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.ImageURL || c["Image URL"] || "";
+          opt.textContent = c.Name || "Unnamed Class";
+          classSelect.appendChild(opt);
+        });
       } catch (err) {
+        alert("Could not load data. Check your published CSV links.");
         console.error(err);
-        setStatus('Failed to load data');
-        $empty.textContent = 'Could not load data. Please check the published CSV links in the code.';
       }
     }
 
-    // Events
-    $teacher.addEventListener('change', () => {
-      if ($teacher.value) { $class.value = ''; updatePreview('teacher', $teacher.value); }
-    });
-    $class.addEventListener('change', () => {
-      if ($class.value) { $teacher.value = ''; updatePreview('class', $class.value); }
-    });
-    $tSearch.addEventListener('input', () => filterOptions($teacher, $tSearch.value));
-    $cSearch.addEventListener('input', () => filterOptions($class, $cSearch.value));
-    document.getElementById('clearSelection').addEventListener('click', () => {
-      $teacher.value = ''; $class.value = ''; $img.removeAttribute('src'); $empty.style.display='grid';
-      const params = new URLSearchParams(location.search); params.delete('teacher'); params.delete('class');
-      history.replaceState(null, '', `${location.pathname}${params.size?('?'+params.toString()):''}`);
-      setStatus('Ready');
+    document.getElementById("previewBtn").addEventListener("click", () => {
+      const teacherURL = document.getElementById("teacherSelect").value;
+      const classURL = document.getElementById("classSelect").value;
+      let urlToOpen = teacherURL || classURL;
+
+      if (!urlToOpen) {
+        alert("Please select a teacher or a class first.");
+        return;
+      }
+      window.open(urlToOpen, "_blank");
     });
 
     init();
-</script>
+  </script>
 </body>
 </html>
-
-
